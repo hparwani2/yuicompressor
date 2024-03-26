@@ -9,13 +9,20 @@
 package com.yahoo.platform.yui.compressor;
 
 import org.mozilla.javascript.*;
+import org.mozilla.javascript.ast.AstNode;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.*;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Stack;
+import java.util.HashSet;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.StringTokenizer;
 
 public class JavaScriptCompressor {
 
@@ -62,7 +69,7 @@ public class JavaScriptCompressor {
             for (char c = '0'; c <= '9'; c++)
                 threes.add(two + Character.toString(c));
         }
-        
+
         // Remove two-letter JavaScript reserved words and built-in globals...
         twos.remove("as");
         twos.remove("is");
@@ -70,7 +77,7 @@ public class JavaScriptCompressor {
         twos.remove("if");
         twos.remove("in");
         twos.removeAll(builtin);
-        
+
         // Remove three-letter JavaScript reserved words and built-in globals...
         threes.remove("for");
         threes.remove("int");
@@ -312,8 +319,8 @@ public class JavaScriptCompressor {
         CompilerEnvirons env = new CompilerEnvirons();
         env.setLanguageVersion(Context.VERSION_1_7);
         Parser parser = new Parser(env, reporter);
-        parser.parse(in, null, 1);
-        String source = parser.getEncodedSource();
+        AstNode ast = parser.parse(in, null, 1);
+        String source = ast.toSource();
 
         int offset = 0;
         int length = (source != null) ? source.length() : 0;
