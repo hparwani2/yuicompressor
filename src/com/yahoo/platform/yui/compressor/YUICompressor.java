@@ -9,8 +9,6 @@
 package com.yahoo.platform.yui.compressor;
 
 import jargs.gnu.CmdLineParser;
-import org.mozilla.javascript.ErrorReporter;
-import org.mozilla.javascript.EvaluatorException;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -111,7 +109,7 @@ public class YUICompressor {
             } else {
                 pattern = output.split(":");
             }
-            
+
             try {
                 String mungemapFilename = (String) parser.getOptionValue(mungemapFilenameOpt);
                 if (mungemapFilename != null) {
@@ -158,65 +156,7 @@ public class YUICompressor {
                         outputFilename = inputFilename.replaceFirst(pattern[0], pattern[1]);
                     }
 
-                    if (type.equalsIgnoreCase("js")) {
-
-                        try {
-                            final String localFilename = inputFilename;
-
-                            JavaScriptCompressor compressor = new JavaScriptCompressor(in, new ErrorReporter() {
-
-                                public void warning(String message, String sourceName,
-                                        int line, String lineSource, int lineOffset) {
-                                    System.err.println("\n[WARNING] in " + localFilename);
-                                    if (line < 0) {
-                                        System.err.println("  " + message);
-                                    } else {
-                                        System.err.println("  " + line + ':' + lineOffset + ':' + message);
-                                    }
-                                }
-
-                                public void error(String message, String sourceName,
-                                        int line, String lineSource, int lineOffset) {
-                                    System.err.println("[ERROR] in " + localFilename);
-                                    if (line < 0) {
-                                        System.err.println("  " + message);
-                                    } else {
-                                        System.err.println("  " + line + ':' + lineOffset + ':' + message);
-                                    }
-                                }
-
-                                public EvaluatorException runtimeError(String message, String sourceName,
-                                        int line, String lineSource, int lineOffset) {
-                                    error(message, sourceName, line, lineSource, lineOffset);
-                                    return new EvaluatorException(message);
-                                }
-                            });
-
-                            // Close the input stream first, and then open the output stream,
-                            // in case the output file should override the input file.
-                            in.close(); in = null;
-
-                            if (outputFilename == null) {
-                                out = new OutputStreamWriter(System.out, charset);
-                            } else {
-                                out = new OutputStreamWriter(new FileOutputStream(outputFilename), charset);
-                                if (mungemap != null) {
-                                    mungemap.write("\n\nFile: "+outputFilename+"\n\n");
-                                }
-                            }
-
-                            compressor.compress(out, mungemap, linebreakpos, munge, verbose,
-                                    preserveAllSemiColons, disableOptimizations);
-
-                        } catch (EvaluatorException e) {
-
-                            e.printStackTrace();
-                            // Return a special error code used specifically by the web front-end.
-                            System.exit(2);
-
-                        }
-
-                    } else if (type.equalsIgnoreCase("css")) {
+                    if (type.equalsIgnoreCase("css")) {
 
                         CssCompressor compressor = new CssCompressor(in);
 
